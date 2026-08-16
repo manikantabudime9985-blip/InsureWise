@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoverWise — Compare Health Insurance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EEF1EE;
+    --paper:#FFFFFF;
+    --ink:#16281F;
+    --brand:#1F5C4F;
+    --brand-dark:#123C33;
+    --brand-tint:#E4EFEA;
+    --accent:#E4572E;
+    --accent-tint:#FCE4DB;
+    --gold:#D9A441;
+    --muted:#5B6B63;
+    --border:#DCE3DD;
+    --danger:#C1443B;
+    --font-display:'Fraunces', serif;
+    --font-body:'IBM Plex Sans', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:var(--font-display);margin:0;letter-spacing:-0.01em;}
+  p{margin:0;line-height:1.55;}
+  button{font-family:var(--font-body);cursor:pointer;}
+  input,select{font-family:var(--font-body);}
+  .app{max-width:1100px;margin:0 auto;padding:28px 20px 80px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 0 32px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{width:34px;height:34px;border-radius:9px;background:var(--brand);position:relative;flex:none;}
+  .brand-mark::after{content:"";position:absolute;inset:8px;border:2px solid #fff;border-radius:5px;}
+  .brand-name{font-family:var(--font-display);font-size:20px;font-weight:600;color:var(--brand-dark);}
+  .steps{display:flex;gap:6px;font-family:var(--font-mono);font-size:11px;color:var(--muted);}
+  .steps span{padding:4px 9px;border-radius:20px;border:1px solid var(--border);background:var(--paper);}
+  .steps span.on{background:var(--brand);color:#fff;border-color:var(--brand);}
+
+  .screen{display:none;}
+  .screen.active{display:block;animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  /* Landing */
+  .hero{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;padding:20px 0 40px;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+  .hero h1{font-size:44px;line-height:1.08;color:var(--brand-dark);}
+  .hero h1 em{font-style:normal;color:var(--accent);}
+  .hero p.lead{margin-top:16px;font-size:16px;color:var(--muted);max-width:46ch;}
+  .badges{display:flex;gap:18px;margin-top:26px;flex-wrap:wrap;}
+  .badge{font-family:var(--font-mono);font-size:12px;color:var(--brand-dark);display:flex;align-items:center;gap:7px;}
+  .badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+
+  .phone{width:280px;margin:0 auto;background:var(--brand-dark);border-radius:34px;padding:14px;box-shadow:0 30px 60px -20px rgba(18,60,51,.45);}
+  .phone-screen{background:var(--paper);border-radius:24px;padding:22px 18px;min-height:420px;position:relative;overflow:hidden;}
+  .phone-notch{width:70px;height:6px;background:var(--brand-dark);border-radius:6px;margin:0 auto 16px;}
+
+  .card{background:var(--paper);border:1px solid var(--border);border-radius:16px;padding:26px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--brand-dark);margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
+  .field input, .field select{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:9px;font-size:14px;background:#FCFDFC;color:var(--ink);}
+  .field input:focus, .field select:focus{outline:2px solid var(--brand);outline-offset:1px;}
+  .radio-row{display:flex;gap:10px;}
+  .radio-opt{flex:1;text-align:center;padding:10px;border:1px solid var(--border);border-radius:9px;font-size:13px;font-weight:600;background:#FCFDFC;color:var(--muted);}
+  .radio-opt.sel{background:var(--brand);color:#fff;border-color:var(--brand);}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px;}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 22px;border-radius:10px;border:none;font-weight:600;font-size:14px;}
+  .btn-primary{background:var(--accent);color:#fff;width:100%;}
+  .btn-primary:hover{background:#cf4a24;}
+  .btn-primary:disabled{background:#D9C6BE;cursor:not-allowed;}
+  .btn-ghost{background:transparent;color:var(--brand-dark);border:1px solid var(--border);}
+  .btn-link{background:none;border:none;color:var(--brand);font-weight:600;text-decoration:underline;padding:0;font-size:13px;}
+
+  .otp-boxes{display:flex;gap:8px;justify-content:center;margin:18px 0 6px;}
+  .otp-boxes input{width:44px;height:52px;text-align:center;font-size:20px;font-family:var(--font-mono);border:1px solid var(--border);border-radius:9px;}
+  .demo-note{background:var(--brand-tint);color:var(--brand-dark);font-family:var(--font-mono);font-size:12px;padding:9px 12px;border-radius:9px;margin-top:14px;text-align:center;}
+
+  /* Details form */
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;}
+  .form-grid .full{grid-column:1/-1;}
+  .section-title{font-family:var(--font-display);font-size:20px;color:var(--brand-dark);margin-bottom:4px;}
+  .section-sub{color:var(--muted);font-size:13px;margin-bottom:20px;}
+  .divider{height:1px;background:var(--border);margin:22px 0;}
+
+  /* Listing */
+  .list-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
+  .list-head h2{font-size:28px;color:var(--brand-dark);}
+  .si-picker label{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:6px;}
+  .si-picker select{padding:9px 12px;border-radius:9px;border:1px solid var(--border);font-family:var(--font-mono);font-size:13px;}
+
+  .insurer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;}
+  .policy-card{background:var(--paper);border:1px solid var(--border);border-radius:16px;padding:0;position:relative;overflow:hidden;}
+  .policy-card.picked{outline:2px solid var(--accent);}
+  .policy-card .band{height:8px;background:var(--brand);}
+  .policy-card .body{padding:20px 20px 18px;}
+  .policy-card .name-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+  .policy-card h3{font-size:17px;color:var(--brand-dark);}
+  .csr-pill{font-family:var(--font-mono);font-size:11px;background:var(--brand-tint);color:var(--brand-dark);padding:4px 8px;border-radius:20px;white-space:nowrap;}
+  .premium{font-family:var(--font-mono);font-size:26px;font-weight:600;color:var(--accent);}
+  .premium span{font-size:12px;color:var(--muted);font-weight:400;margin-left:4px;}
+  .feat-list{list-style:none;margin:14px 0 0;padding:0;font-size:13px;color:var(--muted);}
+  .feat-list li{padding:4px 0 4px 16px;position:relative;}
+  .feat-list li::before{content:"✓";position:absolute;left:0;color:var(--brand);font-weight:700;}
+  .meta-row{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:14px;border-top:1px dashed var(--border);padding-top:12px;}
+  .compare-check{display:flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;font-weight:600;color:var(--brand-dark);}
+  .compare-check input{width:16px;height:16px;}
+
+  .compare-bar{position:sticky;bottom:16px;margin-top:26px;background:var(--brand-dark);color:#fff;border-radius:14px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 20px 40px -14px rgba(0,0,0,.35);}
+  .compare-bar .btn-primary{width:auto;}
+
+  /* Compare screen */
+  .rec-panel{background:var(--brand-dark);color:#fff;border-radius:18px;padding:26px 28px;margin-bottom:26px;position:relative;overflow:hidden;}
+  .rec-panel::before{content:"RECOMMENDED";position:absolute;top:16px;right:-38px;background:var(--accent);color:#fff;font-family:var(--font-mono);font-size:11px;padding:5px 44px;transform:rotate(35deg);letter-spacing:.06em;}
+  .rec-panel h3{color:#fff;font-size:22px;margin-bottom:8px;}
+  .rec-reasons{margin-top:12px;display:flex;gap:22px;flex-wrap:wrap;}
+  .rec-reasons div{font-size:13px;max-width:220px;color:#DCEAE4;}
+  .rec-reasons b{display:block;color:#fff;font-family:var(--font-mono);font-size:12px;margin-bottom:3px;}
+
+  table.compare-table{width:100%;border-collapse:collapse;background:var(--paper);border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+  table.compare-table th, table.compare-table td{padding:14px 16px;text-align:left;font-size:13px;border-bottom:1px solid var(--border);vertical-align:top;}
+  table.compare-table th{background:var(--brand-tint);color:var(--brand-dark);font-family:var(--font-mono);text-transform:uppercase;font-size:11px;letter-spacing:.03em;}
+  table.compare-table tr:last-child td{border-bottom:none;}
+  table.compare-table td.label{font-weight:600;color:var(--muted);background:#FAFBFA;width:170px;}
+  .top-pick-col{background:#FCF4EF;}
+
+  .footer-note{text-align:center;color:var(--muted);font-size:12px;margin-top:40px;}
+  .view-details-btn{margin-top:12px;width:100%;padding:10px 14px;border-radius:9px;border:1px solid var(--brand);background:var(--brand-tint);color:var(--brand-dark);font-size:13px;font-weight:600;}
+  .view-details-btn:hover{background:var(--brand);color:#fff;}
+
+  /* Policy detail modal */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(18,30,25,.55);z-index:50;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
+  .modal-overlay.active{display:flex;}
+  .modal-box{background:var(--paper);border-radius:18px;max-width:720px;width:100%;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.4);animation:fade .25s ease;}
+  .modal-head{background:var(--brand-dark);color:#fff;padding:22px 26px;position:relative;}
+  .modal-head .src-tag{font-family:var(--font-mono);font-size:11px;color:#B9CFC6;text-transform:uppercase;letter-spacing:.06em;}
+  .modal-head h3{color:#fff;font-size:21px;margin-top:6px;}
+  .modal-head p{color:#DCEAE4;font-size:13px;margin-top:6px;}
+  .modal-close{position:absolute;top:16px;right:18px;background:transparent;border:none;color:#fff;font-size:20px;line-height:1;opacity:.8;}
+  .modal-close:hover{opacity:1;}
+  .modal-tabs{display:flex;border-bottom:1px solid var(--border);background:#FAFBFA;}
+  .modal-tabs button{flex:1;padding:13px 8px;background:transparent;border:none;font-size:12.5px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;font-family:var(--font-body);}
+  .modal-tabs button.on{color:var(--brand-dark);border-bottom-color:var(--accent);background:var(--paper);}
+  .modal-body{padding:22px 26px 26px;max-height:50vh;overflow-y:auto;}
+  .modal-pane{display:none;}
+  .modal-pane.on{display:block;}
+  .modal-pane ul{margin:0;padding-left:18px;font-size:13.5px;color:var(--ink);line-height:1.6;}
+  .modal-pane ul li{margin-bottom:7px;}
+  .claim-block{margin-bottom:16px;}
+  .claim-block h4{font-family:var(--font-mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);margin-bottom:8px;}
+  .modal-source{font-size:11px;color:var(--muted);margin-top:18px;padding-top:14px;border-top:1px dashed var(--border);}
+  @media (max-width: 860px){
+    .hero{grid-template-columns:1fr;}
+    .form-grid{grid-template-columns:1fr;}
+    .phone{width:100%;max-width:320px;}
+    .modal-tabs button{font-size:11px;padding:11px 4px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-name">CoverWise</div>
+    </div>
+    <div class="steps" id="stepIndicator">
+      <span data-step="landing">1 · Sign up</span>
+      <span data-step="details">2 · Your details</span>
+      <span data-step="list">3 · Compare plans</span>
+    </div>
+  </div>
+
+  <!-- SCREEN 1: LANDING / SIGN UP -->
+  <section class="screen active" id="screen-landing">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Standalone health insurers, side by side</div>
+        <h1>Choose the <em>right</em> health cover, not just the cheapest one.</h1>
+        <p class="lead">Answer a few questions about yourself and your health history. We'll line up plans from India's standalone health insurers and tell you which one actually fits — with the reasoning shown, not hidden.</p>
+        <div class="badges">
+          <div class="badge"><span class="dot"></span>No spam calls</div>
+          <div class="badge"><span class="dot"></span>Data used only for your comparison</div>
+          <div class="badge"><span class="dot"></span>Takes ~2 minutes</div>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="section-title" style="font-size:18px;">Sign up</div>
+          <div class="section-sub">Verify your mobile number to begin</div>
+          <div class="field">
+            <label>Mobile number</label>
+            <input type="tel" id="mobileInput" maxlength="10" placeholder="98765 43210">
+          </div>
+          <button class="btn btn-primary" id="sendOtpBtn" onclick="sendOtp()">Send OTP</button>
+          <p class="hint" id="mobileError" style="color:var(--danger);display:none;">Enter a valid 10-digit mobile number.</p>
+
+          <div id="otpBlock" style="display:none;margin-top:18px;">
+            <div class="section-sub" style="margin-bottom:8px;">Enter the 4-digit code sent to <span id="mobileShown" style="font-family:var(--font-mono);"></span></div>
+            <div class="otp-boxes">
+              <input maxlength="1" oninput="otpMove(this,0)">
+              <input maxlength="1" oninput="otpMove(this,1)">
+              <input maxlength="1" oninput="otpMove(this,2)">
+              <input maxlength="1" oninput="otpMove(this,3)">
+            </div>
+            <button class="btn btn-primary" style="margin-top:14px;" onclick="verifyOtp()">Verify & continue</button>
+            <p class="hint" id="otpError" style="color:var(--danger);display:none;text-align:center;">Incorrect code. Try again.</p>
+            <div class="demo-note">Demo mode — no SMS is actually sent. Your code is <b id="demoOtp"></b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 2: DETAILS FORM -->
+  <section class="screen" id="screen-details">
+    <div class="card" style="max-width:720px;margin:0 auto;">
+      <div class="section-title">Choose the perfect health insurance for you</div>
+      <div class="section-sub">Your answers shape the recommendation — be accurate, especially about health history.</div>
+
+      <div class="form-grid">
+        <div class="field"><label>Full name</label><input id="f_name" placeholder="e.g. Manikanta Reddy"></div>
+        <div class="field"><label>Date of birth</label><input id="f_dob" type="date"></div>
+
+        <div class="field full">
+          <label>Gender</label>
+          <div class="radio-row" id="genderRow">
+            <div class="radio-opt" data-val="Female" onclick="pick('genderRow',this,'gender')">Female</div>
+            <div class="radio-opt" data-val="Male" onclick="pick('genderRow',this,'gender')">Male</div>
+            <div class="radio-opt" data-val="Other" onclick="pick('genderRow',this,'gender')">Other</div>
+          </div>
+        </div>
+
+        <div class="field full">
+          <label>Any pre-existing diseases?</label>
+          <div class="radio-row" id="pedRow">
+            <div class="radio-opt" data-val="Yes" onclick="pick('pedRow',this,'ped');toggle('pedNameField',true)">Yes</div>
+            <div class="radio-opt" data-val="No" onclick="pick('pedRow',this,'ped');toggle('pedNameField',false)">No</div>
+          </div>
+        </div>
+        <div class="field full" id="pedNameField" style="display:none;">
+          <label>Name the disease(s)</label>
+          <input id="f_pedName" placeholder="e.g. Type 2 diabetes, hypertension">
+        </div>
+
+        <div class="field full">
+          <label>Held a health insurance policy before?</label>
+          <div class="radio-row" id="pastRow">
+            <div class="radio-opt" data-val="Yes" onclick="pick('pastRow',this,'past');toggle('pastFields',true)">Yes</div>
+            <div class="radio-opt" data-val="No" onclick="pick('pastRow',this,'past');toggle('pastFields',false)">No</div>
+          </div>
+        </div>
+        <div class="full" id="pastFields" style="display:none;">
+          <div class="form-grid">
+            <div class="field"><label>Which company?</label><input id="f_pastCompany" placeholder="e.g. Star Health"></div>
+            <div class="field"><label>Years insured</label><input id="f_pastYears" type="number" min="0" placeholder="e.g. 3"></div>
+          </div>
+        </div>
+
+        <div class="divider full"></div>
+
+        <div class="field"><label>Occupation <span style="text-transform:none;font-weight:400;">(optional)</span></label><input id="f_occupation" placeholder="e.g. Analyst"></div>
+        <div class="field"><label>Monthly salary <span style="text-transform:none;font-weight:400;">(optional)</span></label><input id="f_salary" type="number" placeholder="in ₹"></div>
+      </div>
+
+      <button class="btn btn-primary" onclick="saveDetails()">Save & see plans</button>
+      <p class="hint" id="detailsError" style="color:var(--danger);display:none;">Please fill in your name, date of birth, gender, pre-existing disease status, and past insurance status.</p>
+    </div>
+  </section>
+
+  <!-- SCREEN 3: LISTING -->
+  <section class="screen" id="screen-list">
+    <div class="list-head">
+      <div>
+        <h2>Plans for <span id="greetName">you</span></h2>
+        <p style="color:var(--muted);font-size:13px;">Pick up to 3 plans to compare side by side.</p>
+      </div>
+      <div class="si-picker">
+        <label>Sum insured</label>
+        <select id="siSelect" onchange="renderList()">
+          <option value="500000">₹5,00,000</option>
+          <option value="1000000" selected>₹10,00,000</option>
+          <option value="1500000">₹15,00,000</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="insurer-grid" id="insurerGrid"></div>
+
+    <div class="compare-bar" id="compareBar" style="display:none;">
+      <div id="compareBarText">0 of 3 selected</div>
+      <button class="btn btn-primary" onclick="goCompare()">Compare selected</button>
+    </div>
+
+    <p class="footer-note">Sample premiums and policy figures shown here are illustrative for this demo and are not live insurer quotes. Always verify current rates, waiting periods, and exclusions directly with the insurer or a licensed advisor before buying.</p>
+  </section>
+
+  <!-- SCREEN 4: COMPARE -->
+  <section class="screen" id="screen-compare">
+    <button class="btn btn-ghost" onclick="showScreen('list')" style="margin-bottom:20px;">&larr; Back to all plans</button>
+
+    <div class="rec-panel" id="recPanel"></div>
+
+    <div style="overflow-x:auto;">
+      <table class="compare-table" id="compareTable"></table>
+    </div>
+
+    <p class="footer-note">Recommendation is generated from a simple rules-based scoring model using the details you entered (age, pre-existing conditions, prior coverage). It's a starting point for research, not financial or medical advice.</p>
+  </section>
+
+</div>
+
+<!-- Policy detail modal -->
+<div class="modal-overlay" id="policyModal" onclick="if(event.target===this) closePolicyModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <button class="modal-close" onclick="closePolicyModal()">&times;</button>
+      <div class="src-tag" id="modalInsurerName"></div>
+      <h3 id="modalPolicyName"></h3>
+      <p id="modalPolicyTagline"></p>
+    </div>
+    <div class="modal-tabs" id="modalTabs">
+      <button data-tab="coverage" class="on" onclick="switchTab('coverage')">Coverage</button>
+      <button data-tab="exclusions" onclick="switchTab('exclusions')">Exclusions</button>
+      <button data-tab="claimProcess" onclick="switchTab('claimProcess')">Claim Process</button>
+      <button data-tab="claimDocuments" onclick="switchTab('claimDocuments')">Claim Documents</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-pane on" id="pane-coverage"></div>
+      <div class="modal-pane" id="pane-exclusions"></div>
+      <div class="modal-pane" id="pane-claimProcess"></div>
+      <div class="modal-pane" id="pane-claimDocuments"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+/* Real retail (individual/family floater) policies from each standalone health
+   insurer's own product literature — policy names, coverage, exclusions, and
+   claims info sourced from starhealth.in, nivabupa.com, careinsurance.com and
+   manipalcigna.com (and their public policy wordings). Premiums are indicative
+   ballparks for research only — always confirm the exact quote on the insurer's
+   own site, since underwriting (age, health, city, add-ons) changes the price. */
+const insurers = [
+  {
+    id:'star', name:'Star Health & Allied Insurance', policyName:'Star Comprehensive Insurance Policy', baseRate:11.2,
+    roomRent:'No sub-limit / no capping', pedWait:3, csr:83,
+    features:['12,000+ cashless network hospitals, ~90% cashless approvals within 2 hours','Restore benefit reinstates sum insured after it is exhausted','No claim bonus up to 100% of sum insured','Maternity and newborn cover after waiting period, day-1 accident cover'],
+    exclusions:['First 30 days: any illness not caused by an accident is excluded','Named illnesses/surgeries excluded for 24 months from policy inception','Cosmetic or plastic surgery unless needed after an accident or cancer','Non-allopathic treatment outside AYUSH in-patient care']
+  },
+  {
+    id:'niva', name:'Niva Bupa Health Insurance', policyName:'Niva Bupa ReAssure 2.0', baseRate:12.1,
+    roomRent:'No room-category capping on Platinum+/Titanium+ variants', pedWait:2, csr:91,
+    features:['No Claim Bonus up to 100% per claim-free year, capped at 1000% of sum insured','Unlimited Reload of sum insured for unrelated illnesses','Claim Promise: zero-deduction cashless settlement on eligible ≥₹10L plans with 48-hr intimation','Lifelong renewability, no sub-limits on Platinum+/Titanium+ variants'],
+    exclusions:['Waiting period of 24 months for specified illnesses/procedures','Investigation-only admissions with no active treatment','Cosmetic/plastic surgery unless due to accident or cancer','War, nuclear/radiological events, and self-inflicted injury']
+  },
+  {
+    id:'care', name:'Care Health Insurance', policyName:'Care Supreme', baseRate:10.6,
+    roomRent:'No room rent capping', pedWait:2, csr:80,
+    features:['Unlimited automatic recharge of sum insured for related and unrelated illnesses','Cumulative Bonus Super: up to 500% increase in sum insured over 5 claim-free years','No sub-limits on AYUSH, organ donor cover or domiciliary hospitalisation','60 days pre- and 180 days post-hospitalisation cover; 22,100+ cashless hospitals'],
+    exclusions:['Initial 30-day waiting period on non-accident claims','24-month waiting period for specified diseases/procedures','All OPD treatment (unless the OPD add-on is purchased)','Self-inflicted injury or attempted-suicide related treatment']
+  },
+  {
+    id:'cigna', name:'Manipal Cigna Health Insurance', policyName:'ManipalCigna ProHealth Prime', baseRate:9.8,
+    roomRent:'No room rent limit on top variants', pedWait:2, csr:93,
+    features:['Cashless Everywhere — cashless treatment even at non-network hospitals','8,900+ network hospitals, ~94-96% cashless approvals within 2 hours','24/7 claim assistance with digital claim tracking','No claim bonus and multiple sum insured/variant options (Protect, Advantage, Active)'],
+    exclusions:['24-month waiting period for specified diseases','Dental/orthodontic treatment unless required due to an accident','Circumcision unless required to treat disease or injury','Non-allopathic treatment outside AYUSH in-patient care']
+  }
+];
+
+/* Claim process + documents, in the insurer's own published steps */
+const policyDetails = {
+  star:{
+    claimProcess:{
+      cashless:['Inform Star Health 48 hrs before a planned admission, or within 24 hrs for an emergency (toll-free/WhatsApp/app).','At the network hospital insurance desk, show the Star Health ID/e-card and get the pre-authorisation form filled by the treating doctor.','Hospital sends the pre-auth form to Star Health/TPA for approval.','On approval, Star Health settles the bill directly with the hospital at discharge.'],
+      reimbursement:['Pay the hospital bills yourself and collect all original documents at discharge.','Intimate the claim (within 24 hrs of admission) via the toll-free number, app or website.','Submit the claim form with original documents online or at a Star Health branch.','After verification, the approved amount is transferred to your bank account.']
+    },
+    claimDocuments:['Duly filled and signed claim form','Original hospital discharge summary','Original itemised hospital bills and payment receipts','Doctor\'s prescriptions and investigation/test reports','Photo ID proof (Aadhaar/PAN etc.)','Policy copy / health card']
+  },
+  niva:{
+    claimProcess:{
+      cashless:['Call the Niva Bupa claim helpline at least 48 hrs before a planned admission (24 hrs for emergencies).','Choose a network hospital and complete the pre-authorisation form at the TPA desk.','Niva Bupa reviews and approves the pre-auth request.','On eligible ≥₹10L plans with the Claim Promise add-on, cashless settlement is made with zero deduction as per policy terms.'],
+      reimbursement:['Settle the hospital bill yourself if treated at a non-network hospital or cashless is unavailable.','Intimate the claim to Niva Bupa with hospitalisation details.','Submit the claim form with original bills, reports and discharge summary.','Once verified, the approved amount is credited to your registered bank account.']
+    },
+    claimDocuments:['Filled and signed claim form','Original discharge summary and indoor case papers','Original hospital bills, payment receipts and pharmacy bills','Investigation/diagnostic reports and doctor\'s prescriptions','KYC/photo ID proof','Cancelled cheque or bank details for reimbursement']
+  },
+  care:{
+    claimProcess:{
+      cashless:['Intimate Care Health 48–71 hrs before planned hospitalisation, or within 24 hrs for emergencies (app/website/email).','Visit a network hospital and get the pre-authorisation form filled at the TPA/insurance desk.','Care Health reviews and, on approval, settles the bill directly with the hospital (targets ~2-hour approvals).'],
+      reimbursement:['Pay the bills upfront at a non-network hospital and collect all original documents.','Submit the claim form with documents online, by app, or at the TPA desk within 15 days of discharge.','Care Health\'s claims team verifies documents and sends an approval/query update.','Approved amount is credited to your bank account.']
+    },
+    claimDocuments:['Duly completed and signed original claim form','Original discharge summary and hospital bills','Investigation reports, pharmacy bills and doctor\'s prescriptions','Policy copy with policyholder details','KYC document (Aadhaar/PAN/Passport/Voter ID) for claims ≥₹1 lakh','Post-mortem report and death certificate (only for accidental death claims)']
+  },
+  cigna:{
+    claimProcess:{
+      cashless:['Inform ManipalCigna/TPA at least 48–72 hrs before planned admission, or within 24 hrs for an emergency.','Show your health card at the network hospital TPA desk and get the pre-authorisation form filled.','TPA verifies details and forwards the request; ManipalCigna typically approves cashless claims within about 2 hours.','On approval, the hospital bill is settled directly with the hospital at discharge.'],
+      reimbursement:['Pay hospital bills yourself and collect all original documents (bills, discharge summary, pharmacy bills).','Download and fill the claim form from the ManipalCigna website.','Submit the claim form and documents within 15 days of discharge, online or at the nearest branch.','Reimbursement is typically settled within about 7–15 working days of complete document verification.']
+    },
+    claimDocuments:['Claim form, completely filled and signed','Copy of photo ID / KYC documents','Original hospital bills and discharge summary','Doctor\'s consultation letters and investigation reports','Pharmacy bills and implant/lens/stent invoices, if applicable','Original cancelled cheque with the proposer\'s name printed']
+  }
+};
+
+let state = { mobile:'', name:'', dob:'', gender:'', ped:'', pedName:'', past:'', pastCompany:'', pastYears:'', occupation:'', salary:'', selected:[] };
+let generatedOtp = '';
+
+/* ---------------- NAV ---------------- */
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.querySelectorAll('#stepIndicator span').forEach(s=>s.classList.remove('on'));
+  const map = {landing:'landing', details:'details', list:'list', compare:'list'};
+  const key = map[name];
+  document.querySelectorAll('#stepIndicator span').forEach(s=>{
+    if (s.dataset.step === key) s.classList.add('on');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ---------------- SIGN UP / OTP ---------------- */
+function sendOtp(){
+  const val = document.getElementById('mobileInput').value.trim();
+  if(!/^[6-9]\d{9}$/.test(val)){
+    document.getElementById('mobileError').style.display='block';
+    return;
+  }
+  document.getElementById('mobileError').style.display='none';
+  state.mobile = val;
+  generatedOtp = String(Math.floor(1000+Math.random()*9000));
+  document.getElementById('demoOtp').textContent = generatedOtp;
+  document.getElementById('mobileShown').textContent = val.replace(/(\d{5})(\d{5})/, '$1 $2');
+  document.getElementById('otpBlock').style.display='block';
+  document.getElementById('sendOtpBtn').textContent = 'Resend OTP';
+}
+function otpMove(el, idx){
+  el.value = el.value.replace(/\D/g,'');
+  if(el.value && el.nextElementSibling && el.nextElementSibling.tagName==='INPUT'){
+    el.nextElementSibling.focus();
+  }
+}
+function verifyOtp(){
+  const boxes = document.querySelectorAll('.otp-boxes input');
+  const entered = Array.from(boxes).map(b=>b.value).join('');
+  if(entered.length===4 && entered===generatedOtp){
+    document.getElementById('otpError').style.display='none';
+    showScreen('details');
+  } else {
+    document.getElementById('otpError').style.display='block';
+  }
+}
+
+/* ---------------- DETAILS FORM ---------------- */
+function pick(rowId, el, field){
+  document.querySelectorAll('#'+rowId+' .radio-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  state[field] = el.dataset.val;
+}
+function toggle(id, show){
+  document.getElementById(id).style.display = show ? 'block' : 'none';
+}
+function saveDetails(){
+  state.name = document.getElementById('f_name').value.trim();
+  state.dob = document.getElementById('f_dob').value;
+  state.pedName = document.getElementById('f_pedName').value.trim();
+  state.pastCompany = document.getElementById('f_pastCompany').value.trim();
+  state.pastYears = document.getElementById('f_pastYears').value;
+  state.occupation = document.getElementById('f_occupation').value.trim();
+  state.salary = document.getElementById('f_salary').value;
+
+  if(!state.name || !state.dob || !state.gender || !state.ped || !state.past){
+    document.getElementById('detailsError').style.display='block';
+    return;
+  }
+  document.getElementById('detailsError').style.display='none';
+  document.getElementById('greetName').textContent = state.name.split(' ')[0];
+  renderList();
+  showScreen('list');
+}
+
+function getAge(){
+  if(!state.dob) return 30;
+  const d = new Date(state.dob);
+  const diff = Date.now() - d.getTime();
+  return Math.max(18, Math.floor(diff / (365.25*24*3600*1000)));
+}
+
+/* ---------------- PREMIUM CALC ---------------- */
+function calcPremium(insurer, si){
+  const age = getAge();
+  const ageMult = age < 30 ? 1 : age < 40 ? 1.25 : age < 50 ? 1.6 : age < 60 ? 2.2 : 3;
+  const pedMult = state.ped === 'Yes' ? 1.18 : 1;
+  const siFactor = si / 500000;
+  return Math.round(insurer.baseRate * 1000 * ageMult * pedMult * Math.sqrt(siFactor) / 100) * 100;
+}
+
+/* ---------------- LISTING ---------------- */
+function renderList(){
+  const si = parseInt(document.getElementById('siSelect').value, 10);
+  const grid = document.getElementById('insurerGrid');
+  grid.innerHTML = '';
+  insurers.forEach(ins=>{
+    const premium = calcPremium(ins, si);
+    const picked = state.selected.includes(ins.id);
+    const card = document.createElement('div');
+    card.className = 'policy-card' + (picked ? ' picked' : '');
+    card.innerHTML = `
+      <div class="band"></div>
+      <div class="body">
+        <div class="name-row">
+          <div>
+            <h3>${ins.name}</h3>
+            <div style="font-family:var(--font-mono);font-size:11.5px;color:var(--accent);margin-top:3px;">${ins.policyName}</div>
+          </div>
+          <span class="csr-pill">CSR ${ins.csr}%</span>
+        </div>
+        <div class="premium">₹${premium.toLocaleString('en-IN')}<span>/ year est., ₹${(si/100000).toFixed(0)}L cover</span></div>
+        <ul class="feat-list">
+          ${ins.features.map(f=>`<li>${f}</li>`).join('')}
+        </ul>
+        <div class="meta-row">
+          <span>Room rent: ${ins.roomRent}</span>
+          <span>PED wait: ${ins.pedWait} yrs</span>
+        </div>
+        <button type="button" class="view-details-btn" onclick="openPolicyModal('${ins.id}')">View coverage, exclusions &amp; claim details</button>
+        <label class="compare-check">
+          <input type="checkbox" ${picked?'checked':''} onchange="toggleSelect('${ins.id}', this)">
+          Add to compare
+        </label>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+  updateCompareBar();
+}
+
+function toggleSelect(id, checkbox){
+  if(checkbox.checked){
+    if(state.selected.length >= 3){
+      checkbox.checked = false;
+      alert('You can compare up to 3 plans at a time. Remove one to add another.');
+      return;
+    }
+    state.selected.push(id);
+  } else {
+    state.selected = state.selected.filter(x=>x!==id);
+  }
+  renderList();
+}
+
+function updateCompareBar(){
+  const bar = document.getElementById('compareBar');
+  const text = document.getElementById('compareBarText');
+  text.textContent = `${state.selected.length} of 3 selected`;
+  bar.style.display = state.selected.length > 0 ? 'flex' : 'none';
+}
+
+/* ---------------- RECOMMENDATION SCORING ---------------- */
+function scoreInsurer(ins, si){
+  const premium = calcPremium(ins, si);
+  const csrScore = ins.csr / 100;
+  const pedScore = 1 - (ins.pedWait - 2) / 3;
+  const premiumScore = 1 - Math.min(premium / 40000, 1);
+  const noCapBonus = /no /i.test(ins.roomRent) ? 0.08 : 0;
+
+  let wCsr = 0.35, wPed = 0.2, wPremium = 0.35, wCap = 0.1;
+  if(state.ped === 'Yes'){ wPed = 0.4; wCsr = 0.3; wPremium = 0.2; wCap = 0.1; }
+  const salaryNum = parseFloat(state.salary);
+  if(salaryNum && salaryNum < 40000){ wPremium += 0.15; wCsr -= 0.1; }
+
+  const total = wCsr*csrScore + wPed*pedScore + wPremium*premiumScore + wCap*noCapBonus;
+  return { premium, total, csrScore, pedScore, premiumScore };
+}
+
+/* ---------------- COMPARE SCREEN ---------------- */
+function goCompare(){
+  if(state.selected.length < 2){
+    alert('Pick at least 2 plans to compare.');
+    return;
+  }
+  const si = parseInt(document.getElementById('siSelect').value, 10);
+  const chosen = insurers.filter(i=>state.selected.includes(i.id));
+  const scored = chosen.map(ins=>({ins, ...scoreInsurer(ins, si)})).sort((a,b)=>b.total-a.total);
+  const top = scored[0];
+
+  const reasons = [];
+  if(state.ped === 'Yes') reasons.push({label:'Pre-existing condition', text:`Shortest realistic waiting period among your picks (${top.ins.pedWait} years) so your condition gets covered sooner.`});
+  reasons.push({label:'Claim settlement ratio', text:`${top.ins.csr}% claim settlement ratio — among the strongest of the plans you shortlisted.`});
+  reasons.push({label:'Premium fit', text:`₹${top.premium.toLocaleString('en-IN')}/year for ₹${(si/100000).toFixed(0)}L cover, balanced against the other benefits.`});
+
+  document.getElementById('recPanel').innerHTML = `
+    <h3>${top.ins.name}</h3>
+    <p style="color:#DCEAE4;">Best overall match for ${state.name || 'you'} based on the details you shared.</p>
+    <div class="rec-reasons">
+      ${reasons.map(r=>`<div><b>${r.label}</b>${r.text}</div>`).join('')}
+    </div>
+  `;
+
+  const rows = [
+    {label:'Annual premium', render:s=>`₹${s.premium.toLocaleString('en-IN')}`},
+    {label:'Claim settlement ratio', render:s=>`${s.ins.csr}%`},
+    {label:'Pre-existing disease waiting', render:s=>`${s.ins.pedWait} years`},
+    {label:'Room rent', render:s=>s.ins.roomRent},
+    {label:'Key benefits', render:s=>`<ul style="margin:0;padding-left:16px;">${s.ins.features.map(f=>`<li>${f}</li>`).join('')}</ul>`},
+    {label:'Exclusions', render:s=>`<ul style="margin:0;padding-left:16px;">${s.ins.exclusions.map(f=>`<li>${f}</li>`).join('')}</ul>`},
+  ];
+
+  const table = document.getElementById('compareTable');
+  let html = '<tr><th>Plan</th>' + scored.map(s=>`<th${s===top?' class="top-pick-col"':''}>${s.ins.name}${s===top?' ★ Top pick':''}</th>`).join('') + '</tr>';
+  rows.forEach(r=>{
+    html += `<tr><td class="label">${r.label}</td>` + scored.map(s=>`<td${s===top?' class="top-pick-col"':''}>${r.render(s)}</td>`).join('') + '</tr>';
+  });
+  table.innerHTML = html;
+
+  showScreen('compare');
+}
+
+/* ---------------- POLICY DETAIL MODAL ---------------- */
+function openPolicyModal(id){
+  const ins = insurers.find(i=>i.id===id);
+  const det = policyDetails[id];
+  if(!ins || !det) return;
+
+  document.getElementById('modalInsurerName').textContent = ins.name;
+  document.getElementById('modalPolicyName').textContent = ins.policyName;
+  document.getElementById('modalPolicyTagline').textContent = `Claim settlement ratio ${ins.csr}% · PED waiting period ${ins.pedWait} years · ${ins.roomRent}`;
+
+  document.getElementById('pane-coverage').innerHTML =
+    `<ul>${ins.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+     <p class="modal-source">Sourced from ${ins.name}'s published policy brochure/wording for ${ins.policyName}. Coverage varies by variant and sum insured — confirm exact terms in your policy schedule.</p>`;
+
+  document.getElementById('pane-exclusions').innerHTML =
+    `<ul>${ins.exclusions.map(f=>`<li>${f}</li>`).join('')}</ul>
+     <p class="modal-source">This is a summary of key exclusions, not the full list. Refer to the policy wording on the insurer's website for the complete set of exclusions and waiting periods.</p>`;
+
+  document.getElementById('pane-claimProcess').innerHTML = `
+    <div class="claim-block">
+      <h4>Cashless claim</h4>
+      <ul>${det.claimProcess.cashless.map(s=>`<li>${s}</li>`).join('')}</ul>
+    </div>
+    <div class="claim-block">
+      <h4>Reimbursement claim</h4>
+      <ul>${det.claimProcess.reimbursement.map(s=>`<li>${s}</li>`).join('')}</ul>
+    </div>
+  `;
+
+  document.getElementById('pane-claimDocuments').innerHTML =
+    `<ul>${det.claimDocuments.map(d=>`<li>${d}</li>`).join('')}</ul>
+     <p class="modal-source">Additional documents may be requested depending on the treatment and claim amount.</p>`;
+
+  switchTab('coverage');
+  document.getElementById('policyModal').classList.add('active');
+}
+
+function closePolicyModal(){
+  document.getElementById('policyModal').classList.remove('active');
+}
+
+function switchTab(tab){
+  document.querySelectorAll('#modalTabs button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
+  document.querySelectorAll('.modal-pane').forEach(p=>p.classList.toggle('on', p.id==='pane-'+tab));
+}
+</script>
+</body>
+</html>
